@@ -1,9 +1,11 @@
+#include <ArduinoQueue.h>
 #include "Arduino_BMI270_BMM150.h"
 #include <ArduinoJson.h>
 
 enum class Mode { Idle, Write, Snapshot };
 Mode current_mode;
 bool is_start;
+ArduinoQueue<int> intQueue(20);
 
 void setup() {
   Serial.begin(9600);
@@ -52,7 +54,13 @@ void readVoltages() {
 
 void loop() {
   if (Serial.available()) {
-    Mode read_mode = static_cast<Mode>(Serial.parseInt());
+    String parsed_string = Serial.readString();
+    for (char c : parsed_string) {
+      intQueue.enqueue(String(c).toInt());
+    }
+  }
+  if (!intQueue.isEmpty()) {
+    Mode read_mode = static_cast<Mode>(intQueue.dequeue());
     if (current_mode == Mode::Idle && read_mode != Mode::Idle) {
       is_start = true;
     }
