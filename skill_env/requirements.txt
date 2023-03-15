@@ -1,3 +1,0 @@
-ask-sdk-core
-babel
-boto3
