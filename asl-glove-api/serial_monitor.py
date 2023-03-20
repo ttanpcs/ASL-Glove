@@ -84,6 +84,7 @@ def add_signal(payload, key, value):
             OpenCallibrationTrainingSignal(
                 voltage_signals = voltage_signals,
                 im_signals = im_signals,
+                glove_id = key
             )
         )
     elif value.ccid == -1:
@@ -91,6 +92,7 @@ def add_signal(payload, key, value):
             ClosedCallibrationTrainingSignal(
                 voltage_signals = voltage_signals,
                 im_signals = im_signals,
+                glove_id = key
             )
         )        
     else:

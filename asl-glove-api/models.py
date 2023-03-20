@@ -9,10 +9,12 @@ class ClosedCallibrationTrainingSignal(db.Model):
     id : int
     voltage_signals : str
     im_signals : str
+    glove_id : int    
 
     id = db.Column(db.Integer, primary_key = True, nullable = False)
     voltage_signals = db.Column(db.String(64), nullable = False)
     im_signals = db.Column(db.String(64), nullable = False)
+    glove_id = db.Column(db.Integer, db.ForeignKey('glove.id'), nullable = False)
 
 @dataclass
 class OpenCallibrationTrainingSignal(db.Model):
@@ -20,10 +22,12 @@ class OpenCallibrationTrainingSignal(db.Model):
     id : int
     voltage_signals : str
     im_signals : str
+    glove_id : int
 
     id = db.Column(db.Integer, primary_key = True, nullable = False)
     voltage_signals = db.Column(db.String(64), nullable = False)
     im_signals = db.Column(db.String(64), nullable = False)
+    glove_id = db.Column(db.Integer, db.ForeignKey('glove.id'), nullable = False)
 
 @dataclass
 class TrainingSignal(db.Model):

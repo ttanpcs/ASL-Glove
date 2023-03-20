@@ -8,7 +8,10 @@ def deploy(reset = False):
     if reset:
         db.drop_all()
     else:
-        Signal.__table__.drop(db.engine)
+        try:
+            Signal.__table__.drop(db.engine)
+        except:
+            pass
     db.create_all()
 
 if __name__ == "__main__":

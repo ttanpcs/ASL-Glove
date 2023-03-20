@@ -20,12 +20,20 @@ def get_gloves():
 
 @app.route("/opencals", methods = ["GET"], strict_slashes = False)
 def get_open_callibrations():
-	cals = OpenCallibrationTrainingSignal.query.all()
+	payload = request.get_json()
+	if not payload or 'glove_id' not in payload:
+		cals = OpenCallibrationTrainingSignal.query.all()
+	else:
+		cals = OpenCallibrationTrainingSignal.query.filter_by(glove_id = payload['glove_id']).all()
 	return [i['id'] for i in cals]
 
 @app.route("/closedcals", methods = ["GET"], strict_slashes = False)
 def get_closed_callibrations():
-	cals = ClosedCallibrationTrainingSignal.query.all()
+	payload = request.get_json()
+	if not payload or 'glove_id' not in payload:
+		cals = ClosedCallibrationTrainingSignal.query.all()
+	else:
+		cals = ClosedCallibrationTrainingSignal.query.filter_by(glove_id = payload['glove_id']).all()
 	return [i['id'] for i in cals]
 
 @app.route("/start", methods = ["POST"], strict_slashes = False)

@@ -21,8 +21,8 @@ Finally install the sqlite vscode extension to view the database correctly.
 ### Endpoints
 
 * "/gloves" : Get Endpoint. Returns a list of all glove ids in the database.
-* "/opencals" : Get Endpoint. Returns a list of all open callibrations in the database.
-* "/closedcals" : Get Endpoint. Returns a list of all closed callibrations in the database.
+* "/opencals" : Get Endpoint. (optional) Paylod = {'glove_id'} Returns a list of all open callibrations in the database.
+* "/closedcals" : Get Endpoint. (optional) Paylod = {'glove_id'} Returns a list of all closed callibrations in the database.
 * "/register" : POST Endpoint. Payload = {(optional) 'id', 'is_primary', 'port'}. This endpoint either registers a new glove in the database or overwrites the properties of an existing glove if 'id' is specified. 'port' corresponds to the COM port in which the glove is communicating through and 'is_primary' specifies whether this is a primary hand glove or a secondary hand glove.
 * "/snapshot" : POST Endpoint. Payload = {'glove_id', 'type'}. This endpoint is used to take callibration snapshots. 'glove_id' is used to specify which glove the snapshot belongs to and 'type' can either be 'open' or 'closed' where each corresponds to the callibration signal of that type.
 * "/start" : POST Endpoint. Payload = {'glove_id', 'ocid', 'ccid', (optional) 'label'}/ This endpoint is used to start recording signals. 'glove_id' is used to specify which glove to record signals from, 'ocid' is used to specify which open callibration signal corresponds to this recording, 'ccid' is used to specify which closed callibration signal corresponds to this recording and 'label' is used to specify what the signal is. If label is not specified, then the signal NOT BE A TRAINING SIGNAL and will be available for querying.
