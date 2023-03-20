@@ -13,6 +13,21 @@ serial_monitor.start_database_thread(app)
 
 # 	return jsonify(signals)
 
+@app.route("/gloves", methods = ["GET"], strict_slashes = False)
+def get_gloves():
+	gloves = Glove.query.all()
+	return [i['id'] for i in gloves]
+
+@app.route("/opencals", methods = ["GET"], strict_slashes = False)
+def get_open_callibrations():
+	cals = OpenCallibrationTrainingSignal.query.all()
+	return [i['id'] for i in cals]
+
+@app.route("/closedcals", methods = ["GET"], strict_slashes = False)
+def get_closed_callibrations():
+	cals = ClosedCallibrationTrainingSignal.query.all()
+	return [i['id'] for i in cals]
+
 @app.route("/start", methods = ["POST"], strict_slashes = False)
 def start():
 	payload = request.get_json()
@@ -31,7 +46,7 @@ def start():
 @app.route("/stop", methods = ["POST"], strict_slashes = False)
 def stop():
 	payload = request.get_json()
-	if not payload or 'glove_id':
+	if not payload or 'glove_id' not in payload:
 		return "Bad Request", 400
 	serial_monitor.stop(payload['glove_id'])
 
@@ -72,8 +87,12 @@ def register_glove():
 		return "Bad Request", 400
 	if 'id' in payload:
 		current_glove = Glove.query.get(payload['id'])
-		current_glove.is_primary = payload['is_primary']
-		current_glove.port = payload['port']
+		if current_glove is not None:
+			current_glove.is_primary = payload['is_primary']
+			current_glove.port = payload['port']
+		else:
+			db.session.add(Glove(is_primary = payload['is_primary'], port = payload['port']))
+
 	else:
 		db.session.add(Glove(is_primary = payload['is_primary'], port = payload['port']))
 	db.session.commit()
