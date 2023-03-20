@@ -3,18 +3,33 @@ import os
 import json
 
 def filter_zeros(pair):
-    key, value = pair
+    _ , value = pair
     if not value:
         return False
     return True 
 
-def send_stop_requests(gloves):
+def send_stop_requests(gloves, primary_only):
     for glove in gloves:
-        requests.post('http://127.0.0.1:5000/stop', json={'glove_id': glove['id']})
+        if not primary_only or glove['is_primary']: 
+            requests.post('http://127.0.0.1:5000/stop', json={'glove_id': glove['id']})
 
-def send_start_requests(gloves, label):
+def send_start_requests(gloves, label, primary_only):
     for glove in gloves:
-        requests.post('http://127.0.0.1:5000/start', json={'glove_id': glove['id'], 'ocid': glove['ocid'], 'ccid': glove['ccid'], 'label': label})
+        if not primary_only or glove['is_primary']: 
+            requests.post('http://127.0.0.1:5000/start', json={'glove_id': glove['id'], 'ocid': glove['ocid'], 'ccid': glove['ccid'], 'label': label})
+
+def train_labels(gloves, labels, primary_only):
+    non_zero_labels = dict(filter(filter_zeros, labels.items()))
+    total = sum(non_zero_labels.values())
+    for key, value in non_zero_labels.items():
+        for i in range(value, 0, -1):
+            print(f'There are {total} total unfilled labels and {i} unfilled labels for {key}.')
+            input(f'Press ENTER to start recording for {key}.')
+            send_start_requests(gloves, key, primary_only)
+            total -= 1
+            input(f'Press ENTER to stop recording for {key}.')
+            send_stop_requests(gloves, primary_only)
+            os.system('cls')
 
 with open('train-config.json') as f:
     config = json.load(f)
@@ -40,14 +55,5 @@ with open('train-config.json') as f:
             exit
         os.system('cls')
 
-    non_zero_labels = dict(filter(filter_zeros, config['labels'].items()))
-    total = sum(non_zero_labels.values())
-    for key, value in non_zero_labels.items():
-        for i in range(value, 0, -1):
-            print(f'There are {total} total unfilled labels and {i} unfilled labels for {key}.')
-            input(f'Press ENTER to start recording for {key}.')
-            send_start_requests(config['gloves'], key)
-            total -= 1
-            input(f'Press ENTER to stop recording for {key}.')
-            send_stop_requests(config['gloves'])
-            os.system('cls')
+    train_labels(config['gloves'], config['one_hand_labels'], True)
+    train_labels(config['gloves'], config['two_hand_labels'], False)

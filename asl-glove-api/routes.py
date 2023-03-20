@@ -71,7 +71,9 @@ def register_glove():
 	if not payload or 'port' not in payload or 'is_primary' not in payload:
 		return "Bad Request", 400
 	if 'id' in payload:
-		db.session.add(Glove(id = payload['id'], is_primary = payload['is_primary'], port = payload['port']))
+		current_glove = Glove.query.get(payload['id'])
+		current_glove.is_primary = payload['is_primary']
+		current_glove.port = payload['port']
 	else:
 		db.session.add(Glove(is_primary = payload['is_primary'], port = payload['port']))
 	db.session.commit()
