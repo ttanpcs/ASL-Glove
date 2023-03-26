@@ -1,5 +1,6 @@
 import json
-import sqlite3
+from app import db, create_app
+from models import Signal, TrainingSignal, ClosedCallibrationTrainingSignal, OpenCallibrationTrainingSignal
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
@@ -10,22 +11,14 @@ import math
 #DATA SETS PER LETTER
 NUM_SETS = 5
 
-conn = sqlite3.connect('production.db')
-c = conn.cursor()
-
 # THROW OUT GX
 
-def getClosedCalibration(id):
-    c.execute('SELECT voltage_signals,im_signals FROM closed WHERE id=?', [id])
-    return c.fetchone()
-
-def getOpenCalibration(id):
-    c.execute('SELECT voltage_signals,im_signals FROM open WHERE id=?', [id])
-    return c.fetchone()
+def getCalibration(id, table):
+    response = table.query.get(id)
+    return [(response.voltage_signals, response.im_signals)]
 
 def getTrainingFeaturesAndLabels():
-    c.execute('SELECT * FROM training WHERE is_start')
-    values = c.fetchall()
+    values = TrainingSignal.query.filter(TrainingSignal.is_start==1).all()
 
     label = []
     feature = []
@@ -33,16 +26,16 @@ def getTrainingFeaturesAndLabels():
     print('start label making')
 
     for v in values:
-        label.append(v[6])
+        label.append(v.label)
 
     print('finish label making')
 
     for i in range(len(values) - 1):
-        tot_v_values, tot_im_values = getSingleTrainingValueWithCalibration(values[i][0], values[i+1][0] - values[i][0])
+        tot_v_values, tot_im_values = normalizeTableValuesWithCalibration(values[i].id, TrainingSignal, values[i+1].id - values[i].id)
         f = np.append(np.array(tot_v_values).flatten(), np.array(tot_im_values).flatten())
         feature.append(f.tolist())
 
-    tot_v_values, tot_im_values = getSingleTrainingValueWithCalibration(values[len(values) - 1][0])
+    tot_v_values, tot_im_values = normalizeTableValuesWithCalibration(values[len(values) - 1].id, TrainingSignal)
     f = np.append(np.array(tot_v_values).flatten(), np.array(tot_im_values).flatten())
     feature.append(f.tolist())
 
@@ -52,84 +45,20 @@ def getTrainingFeaturesAndLabels():
 
     return features, labels
 
-def getSingleTrainingValueWithCalibration(id, limit=0):
+def normalizeTableValuesWithCalibration(id, table, limit = 0):
     if limit:
-        c.execute('SELECT * FROM training WHERE id>=? LIMIT ?', [id, limit])
+        values = table.query.filter(table.id >= id).limit(limit).all()
     else:
-        c.execute('SELECT * FROM training WHERE id>=?', [id])
-
-    values = c.fetchall()
-
-    min_values = np.array(list(json.loads('{' + getClosedCalibration(values[0][2])[0] + '}').values()))
-    max_values = np.array(list(json.loads('{' + getOpenCalibration(values[0][1])[0] + '}').values()))
-
-    print(max_values, min_values)
-
-    if (values[0][3] == 1):
-        print('right hand calib')
-        min_values = min_values[1:]
-        max_values = max_values[1:]
-        print(max_values, min_values)
-    else:
-        print('left hand calib')
-        min_values = min_values[:-1]
-        max_values = max_values[:-1]
-        print(max_values, min_values)
-
-    max_values = np.subtract(max_values, min_values)
-
-    tot_v_values = []
-    tot_im_values = []
-
-    inc = len(values) / NUM_SETS
-
-    i = 0.0
-
-    while i < len(values):
-        v = values[math.floor(i)]
-        v_values_dict = json.loads('{' + v[7] + '}')
-        im_values_dict = json.loads('{' + v[8] + '}')
-
-        # tossing gx and extra voltage reading
-        im_values_dict.pop('gx')
-        if v[3] == 1:
-            print('right hand')
-            v_values_dict.pop('A0')
-        else:
-            print('left hand')
-            v_values_dict.pop('A7')
-        
-        v_values = np.array(list(v_values_dict.values()))
-        im_values = np.array(list(im_values_dict.values()))
-
-        # normalizing voltage signals
-
-        v_values = np.subtract(v_values, min_values)
-
-        v_values = np.divide(v_values, max_values)
-
-        tot_v_values.append(v_values)
-        tot_im_values.append(im_values)
-        i += inc
-
-    return tot_v_values, tot_im_values
-
-def normalizeSignalValuesWithCalibration(id, limit = 0):
-    if limit:
-        c.execute('SELECT * FROM signal WHERE id>=? LIMIT ?', [id, limit])
-    else:
-        c.execute('SELECT * FROM signal WHERE id>=?', [id])
-
-    values = c.fetchall()
+        values = table.query.filter(table.id >= id).all()
 
     # print(values)
 
-    min_values = np.array(list(json.loads('{' + getClosedCalibration(values[0][2])[0] + '}').values()))
-    max_values = np.array(list(json.loads('{' + getOpenCalibration(values[0][1])[0] + '}').values()))
+    min_values = np.array(list(json.loads('{' + getCalibration(values[0].closed_callibration_id, ClosedCallibrationTrainingSignal)[0] + '}').values()))
+    max_values = np.array(list(json.loads('{' + getCalibration(values[0].open_callibration_id, OpenCallibrationTrainingSignal)[0] + '}').values()))
 
     # print(max_values, min_values)
 
-    if (values[0][3] == 1):
+    if (values[0].glove_id == 1):
         # print('right hand calib')
         min_values = min_values[1:]
         max_values = max_values[1:]
@@ -151,8 +80,8 @@ def normalizeSignalValuesWithCalibration(id, limit = 0):
 
     while i < len(values):
         v = values[math.floor(i)]
-        v_values_dict = json.loads('{' + v[6] + '}')
-        im_values_dict = json.loads('{' + v[7] + '}')
+        v_values_dict = json.loads('{' + v.voltage_signals + '}')
+        im_values_dict = json.loads('{' + v.im_signals + '}')
 
         # tossing gx
         im_values_dict.pop('gx')
@@ -179,26 +108,17 @@ def normalizeSignalValuesWithCalibration(id, limit = 0):
     return tot_v_values, tot_im_values
 
 def getLatestPrediction(model, glove_ids , num_rows = 20):
-    glove_id_str = []
-    for id in glove_ids:
-        glove_id_str.append(str(id))
-    glove_id_sql = ",".join(glove_id_str)
-    print(glove_id_sql)
-    c.execute('SELECT id,is_start FROM signal WHERE glove_id IN (?) ORDER BY time DESC LIMIT ? ', [glove_id_sql, num_rows])
-    values = c.fetchall()
-    
-    id = values[0][0]
-
+    values = Signal.query.filter(Signal.glove_id.in_(glove_ids)).order_by(Signal.time.desc()).limit(num_rows).all()    
+    id = values[0].id
     for v in values:
-        id = v[0]
-        if v[1]:
+        id = v.id
+        if v.is_start:
             break
-    print(id)
 
     return getPredictionFromId(id, model)
 
 def getPredictionFromId(id, model, limit = 0):
-    tot_v_values, tot_im_values = normalizeSignalValuesWithCalibration(id, limit)
+    tot_v_values, tot_im_values = normalizeTableValuesWithCalibration(id, Signal, limit)
     f = np.append(np.array(tot_v_values).flatten(), np.array(tot_im_values).flatten())
     return getPrediction(f, model)
 
@@ -246,7 +166,5 @@ def trainModelWithTestSplit():
 if __name__ == "__main__":
     # trainModel()
     # trainModelWithTestSplit()
-
+    create_app()
     model = loadModel()
-    print(getLatestPrediction(model, [1]))
-    # print(getPredictionFromId(1, model, 11))

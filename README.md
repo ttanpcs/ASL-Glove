@@ -27,6 +27,7 @@ Finally install the sqlite vscode extension to view the database correctly.
 * "/snapshot" : POST Endpoint. Payload = {'glove_id', 'type'}. This endpoint is used to take callibration snapshots. 'glove_id' is used to specify which glove the snapshot belongs to and 'type' can either be 'open' or 'closed' where each corresponds to the callibration signal of that type.
 * "/start" : POST Endpoint. Payload = {'glove_id', 'ocid', 'ccid', (optional) 'label'}/ This endpoint is used to start recording signals. 'glove_id' is used to specify which glove to record signals from, 'ocid' is used to specify which open callibration signal corresponds to this recording, 'ccid' is used to specify which closed callibration signal corresponds to this recording and 'label' is used to specify what the signal is. If label is not specified, then the signal NOT BE A TRAINING SIGNAL and will be available for querying.
 * "/stop" : POST Endpoint. Payload = {'glove_id'}. This endpoint stops recording for the specified glove id.
+* "/reset" : POST Endpoint. This endpoint resets the Signal table in the database 
 * "/query" (WIP) : GET Endpoint returns true/false and the last signal / datapoint? processed. Should be called continuously every few milliseconds for accurate results. This should also call the model and do fancy stuff.
 
 ### Training

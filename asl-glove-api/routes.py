@@ -15,6 +15,14 @@ serial_monitor.start_database_thread(app)
 
 # 	return jsonify(signals)
 
+@app.route("/reset", methods = ["POST"], strict_slashes = False)
+def reset():
+	try:
+		Signal.__table__.drop(db.engine)
+		return "Success", 200
+	except:
+		return "Bad Request", 400
+
 @app.route("/query", methods = ["POST"], strict_slashes = False)
 def query():
 	payload = request.get_json()
@@ -22,10 +30,10 @@ def query():
 		return "Bad Request", 400
 	elif 'secondary' not in payload:
 		pred_label = getLatestPrediction(model, [payload['primary']['id']])
-		return (payload['label'] == pred_label), 200
 	else:
 		pred_label = getLatestPrediction(model, [payload['primary']['id'], payload['secondary']['id']])
-		return (payload['label'] == pred_label), 200
+	print('Predicted label: ', pred_label)
+	return (payload['label'] == pred_label), 200
 
 @app.route("/gloves", methods = ["GET"], strict_slashes = False)
 def get_gloves():
