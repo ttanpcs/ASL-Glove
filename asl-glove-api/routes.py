@@ -1,10 +1,12 @@
 from flask import jsonify, request
 from app import create_app, db
 from models import Signal, Glove, ClosedCallibrationTrainingSignal, OpenCallibrationTrainingSignal
+from model import getLatestPrediction, loadModel
 import serial_monitor
 import time
 
 app = create_app()
+model = loadModel()
 serial_monitor.start_database_thread(app)
 
 # @app.route("/signals", methods = ["GET"], strict_slashes = False)
@@ -13,10 +15,22 @@ serial_monitor.start_database_thread(app)
 
 # 	return jsonify(signals)
 
+@app.route("/query", methods = ["POST"], strict_slashes = False)
+def query():
+	payload = request.get_json()
+	if not payload or 'primary' not in payload or 'label' not in payload:
+		return "Bad Request", 400
+	elif 'secondary' not in payload:
+		pred_label = getLatestPrediction(model, [payload['primary']['id']])
+		return (payload['label'] == pred_label), 200
+	else:
+		pred_label = getLatestPrediction(model, [payload['primary']['id'], payload['secondary']['id']])
+		return (payload['label'] == pred_label), 200
+
 @app.route("/gloves", methods = ["GET"], strict_slashes = False)
 def get_gloves():
 	gloves = Glove.query.all()
-	return [i['id'] for i in gloves]
+	return [i['id'] for i in gloves], 200
 
 @app.route("/opencals", methods = ["GET"], strict_slashes = False)
 def get_open_callibrations():
@@ -25,7 +39,7 @@ def get_open_callibrations():
 		cals = OpenCallibrationTrainingSignal.query.all()
 	else:
 		cals = OpenCallibrationTrainingSignal.query.filter_by(glove_id = payload['glove_id']).all()
-	return [i['id'] for i in cals]
+	return [i['id'] for i in cals], 200
 
 @app.route("/closedcals", methods = ["GET"], strict_slashes = False)
 def get_closed_callibrations():
@@ -34,7 +48,7 @@ def get_closed_callibrations():
 		cals = ClosedCallibrationTrainingSignal.query.all()
 	else:
 		cals = ClosedCallibrationTrainingSignal.query.filter_by(glove_id = payload['glove_id']).all()
-	return [i['id'] for i in cals]
+	return [i['id'] for i in cals], 200
 
 @app.route("/start", methods = ["POST"], strict_slashes = False)
 def start():

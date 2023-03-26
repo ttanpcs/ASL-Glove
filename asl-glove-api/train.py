@@ -17,6 +17,7 @@ def send_start_requests(gloves, label, primary_only):
     for glove in gloves:
         if not primary_only or glove['is_primary']: 
             requests.post('http://127.0.0.1:5000/start', json={'glove_id': glove['id'], 'ocid': glove['ocid'], 'ccid': glove['ccid'], 'label': label})
+            # requests.post('http://127.0.0.1:5000/start', json={'glove_id': glove['id'], 'ocid': glove['ocid'], 'ccid': glove['ccid']})
 
 def train_labels(gloves, labels, primary_only):
     non_zero_labels = dict(filter(filter_zeros, labels.items()))
