@@ -29,8 +29,9 @@ start_time = datetime.now()
 with open('supported_signs.json') as f:
     supported_signs = json.load(f)
     current_sign = random.choice(supported_signs['one_hand_signs'])
+    print('Expected:', current_sign)
     correct = False
     while not correct:
         correct = requests.post('http://127.0.0.1:5000/query', json={'primary': {'id': glove_id}, 'label': current_sign}).json()
-        sleep(0.1)
+        sleep(1)
     requests.post('http://127.0.0.1:5000/stop', json={'glove_id': glove_id})

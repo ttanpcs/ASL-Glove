@@ -29,11 +29,11 @@ def query():
 	if not payload or 'primary' not in payload or 'label' not in payload:
 		return "Bad Request", 400
 	elif 'secondary' not in payload:
-		pred_label = getLatestPrediction(model, [payload['primary']['id']])
+		pred_label = getLatestPrediction(model, [payload['primary']['id']], num_preds=5)
 	else:
-		pred_label = getLatestPrediction(model, [payload['primary']['id'], payload['secondary']['id']])
+		pred_label = getLatestPrediction(model, [payload['primary']['id'], payload['secondary']['id']], num_preds=5)
 	print('Predicted label: ', pred_label)
-	return (payload['label'] == pred_label), 200
+	return jsonify(payload['label'] in pred_label[0]), 200
 
 @app.route("/gloves", methods = ["GET"], strict_slashes = False)
 def get_gloves():
