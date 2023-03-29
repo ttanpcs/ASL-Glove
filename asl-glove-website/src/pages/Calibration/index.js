@@ -1,19 +1,19 @@
 import React from "react";
-import "../styles.sass";
+import "./calstyles.sass";
 import Button from "../Button/button"
-
-export default class Game extends React.Component {
-  
-  
- 
-  goto(s) {
-    window.location.href = s
-  }
+import { left_glove_state, right_glove_state } from "../../App";
+import {useRecoilValue, useSetRecoilState} from 'recoil'
 
 
-  render() {
+export default function Calibration() {
+
+  const left_id = useRecoilValue(left_glove_state)
+  const setLeftId = useSetRecoilState(left_glove_state)
+  const rightId = useRecoilValue(right_glove_state)
+  const setRightId = useSetRecoilState(right_glove_state)
     
-    return (    
+    return (
+          
           <div className = "background">
           <div className = "content">
           <div className = "title-box">
@@ -26,5 +26,5 @@ export default class Game extends React.Component {
           
             </div>
     )
-  }
+  
 }

@@ -1,24 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React, {useState } from 'react';
+import {
+    RecoilRoot,
+    atom,
+    selector,
+    useRecoilState,
+    useRecoilValue,
+  } from 'recoil';
 import './App.css';
-import {Routes, Route, useLocation}
+import {Routes, Route, BrowserRouter as Router}
     from 'react-router-dom';
 import Home from './pages/Home';
 import Registration from './pages/Registration'
 import Game from './pages/Game'
 import Calibration from './pages/Calibration'
 import SignName from './pages/SignName'
-  
 
-function App() {    
 
+export const left_glove_state = atom({
+    key: 'ids',
+    default: {
+        id: -1,
+        open_id: -1,
+        close_id: -1
+    }
+})  
+export const right_glove_state = atom({
+    key: 'ids',
+    default: {
+        id: -1,
+        open_id: -1,
+        close_id: -1
+    }
+})  
+
+function App() {  
 return (
-    <Routes>
-        <Route exact path='/' element={<Home />} />
-        <Route path='/registration' element={<Registration/>} />
-        <Route path='/calibration' element={<Calibration/>} />
-        <Route path='/game' element={<Game/>} />
-        <Route path='/signyourname' element={<SignName/>} />
-    </Routes>
+    <RecoilRoot>
+        <Router>
+        <Routes>
+            <Route exact path='/' element={<Home />} />
+            <Route path='/registration' element={<Registration/>} />
+            <Route path='/calibration' element={<Calibration/>} />
+            <Route path='/game' element={<Game/>} />
+            <Route path='/signyourname' element={<SignName/>} />
+        </Routes>
+        </Router>
+    </RecoilRoot>
 );
 }
 

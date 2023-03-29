@@ -1,17 +1,16 @@
 import React from "react";
-import "../styles.sass";
+import "./signstyles.sass";
 import Button from "../Button/button"
+import { left_glove_state, right_glove_state } from "../../App";
+import {useRecoilValue, useSetRecoilState} from 'recoil'
 
-export default class SignName extends React.Component {
+export default function SignName() {
   
-  
- 
-  goto(s) {
-    window.location.href = s
-  }
+  const left_id = useRecoilValue(left_glove_state)
+  const setLeftId = useSetRecoilState(left_glove_state)
+  const rightId = useRecoilValue(right_glove_state)
+  const setRightId = useSetRecoilState(right_glove_state)
 
-
-  render() {
     
     return (    
           <div className = "background">
@@ -26,5 +25,4 @@ export default class SignName extends React.Component {
           
       </div>
     )
-  }
 }
