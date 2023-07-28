@@ -1,5 +1,5 @@
 .background
-  height: 600pt
+  height: 700pt
   width: 1136pt
   display: relative
   background: #424c5a
@@ -8,17 +8,18 @@
     display: flex
     flex-direction: column
     width: 100%
+    height: 100%
 
     .title-box
       
       text-align: left
       display: flex
       flex-direction: row
-      height: 80pt
+      height: 100pt
       position: relative
       width: 1136pt
       
-      font-size: 4ch
+      font-size: 5ch
       font-weight: bold
       background: #eaeaea
       color: #84b5af //Color1
@@ -73,27 +74,74 @@
           list-style-type: none
           padding: 0
           text-align: center
-          margin-top: 21pt
-          
+          margin-top: 23pt
 
           .list-item  
             
             background: #eaeaea
             width: 120pt
             height: 40pt
-            font-size: 1em
+            font-size: .8em
             display: flex
             border-color:#424c5a 
             align-items: center
             justify-content: center
             color: #84b5af //Color1
-
-    .left-right
+    .body
       width: 1136pt
-      height: 520pt
+      height: 100%
       display: flex
-      flex-direction: row
-      text-align: left
+      flex-direction: column
+      background: url(../../assets/Background.png) no-repeat 100%/100%
+      background-size: 1136pt
+
+      .namegame
+        width: 1136pt
+        height: 100%
+        // background: green
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: center
+
+        .chart
+          width: 350pt
+          height: 350pt
+          background: url(../../assets/aslchart.png) no-repeat center
+          background-size: 350pt
+
+        .name-form
+          width: 170pt
+          color: #84b5af //Color1
+          font-size: 18pt
+          font-weight: bold
+
+          .text-input
+            margin-top: 0pt
+            height: 20pt
+            width: 150pt
+
+          .name-button
+            margin-top: 20pt
+            font-size: 17pt
+            width: 150pt
+            height: 30pt
+            border-width: 0
+            background: #84b5af //Color1
+            color: #424c5a //Color 3 //#eaeaea //offwhite
+            // background: green 
+        .promptname
+          text-align: center
+          color: #84b5af //Color1
+          font-size: 40pt
+          font-weight: bold
+        
+        .showname
+          text-align: center
+          color: #84b5af //Color1
+          font-size: 100pt
+          font-weight: bold
+
 
           
         

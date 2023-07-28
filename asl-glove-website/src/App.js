@@ -14,23 +14,28 @@ import Registration from './pages/Registration'
 import Game from './pages/Game'
 import Calibration from './pages/Calibration'
 import SignName from './pages/SignName'
+import { recoilPersist } from 'recoil-persist'
+
+const { persistAtom } = recoilPersist()
 
 
 export const left_glove_state = atom({
-    key: 'ids',
+    key: 'left_ids',
     default: {
         id: -1,
-        open_id: -1,
-        close_id: -1
-    }
+        open_id: -2,
+        close_id: -3,
+    },
+    effects_UNSTABLE: [persistAtom],
 })  
 export const right_glove_state = atom({
-    key: 'ids',
+    key: 'right_ids',
     default: {
         id: -1,
-        open_id: -1,
-        close_id: -1
-    }
+        open_id: -2,
+        close_id: -3,
+    },
+    effects_UNSTABLE: [persistAtom],
 })  
 
 function App() {  

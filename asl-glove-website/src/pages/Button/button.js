@@ -2,7 +2,7 @@ import React from "react";
 
  
 function goto(s) {
-  window.location.href = s
+  window.location.replace(s)
 }
 
 const Button = () => {
@@ -25,7 +25,7 @@ const Button = () => {
               <button className="list-item" onClick={()=>goto('/calibration')}>Calibrate Gloves</button>
             </li>
             <li>
-              <button className="list-item" onClick={()=>goto('/game')}>Play Game</button>
+              <button className="list-item" onClick={()=>goto('/game')}>Flashcard Game</button>
             </li>
             <li>
               <button className="list-item" onClick={()=>goto('/signyourname')}>Sign Your Name</button>

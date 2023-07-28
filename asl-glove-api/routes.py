@@ -4,8 +4,10 @@ from models import Signal, Glove, ClosedCallibrationTrainingSignal, OpenCallibra
 from model import getLatestPrediction, loadModel
 import serial_monitor
 import time
+from flask_cors import CORS
 
 app = create_app()
+CORS(app)
 model = loadModel()
 serial_monitor.start_database_thread(app)
 
@@ -18,10 +20,12 @@ serial_monitor.start_database_thread(app)
 @app.route("/reset", methods = ["POST"], strict_slashes = False)
 def reset():
 	try:
-		Signal.__table__.drop(db.engine)
+		# Signal.__table__.drop(db.engine)
+		# db.create_all()
 		return "Success", 200
 	except:
 		return "Bad Request", 400
+	# return "Success", 200
 
 @app.route("/query", methods = ["POST"], strict_slashes = False)
 def query():
@@ -29,18 +33,33 @@ def query():
 	if not payload or 'primary' not in payload or 'label' not in payload:
 		return "Bad Request", 400
 	elif 'secondary' not in payload:
-		pred_label = getLatestPrediction(model, [payload['primary']['id']], num_preds=5)
+		pred_label = getLatestPrediction(model, [payload['primary']], num_preds=5)
 	else:
-		pred_label = getLatestPrediction(model, [payload['primary']['id'], payload['secondary']['id']], num_preds=5)
+		pred_label = getLatestPrediction(model, [payload['primary'], payload['secondary']], num_preds=5)
+
 	print('Predicted label: ', pred_label)
-	return jsonify(payload['label'] in pred_label[0]), 200
+	print('Expected label: ', payload['label'])
+	print('label')
+	try:
+		return jsonify(found = payload['label'] in pred_label), 200
+	except: return jsonify(found = False), 200
 
 @app.route("/gloves", methods = ["GET"], strict_slashes = False)
 def get_gloves():
 	gloves = Glove.query.all()
-	return [i['id'] for i in gloves], 200
+	return [i.id for i in gloves], 200
 
-@app.route("/opencals", methods = ["GET"], strict_slashes = False)
+@app.route("/leftgloves", methods = ["GET"], strict_slashes = False)
+def get_left_gloves():
+	gloves = Glove.query.filter(Glove.is_primary == False).all()
+	return [i.id for i in gloves], 200
+
+@app.route("/rightgloves", methods = ["GET"], strict_slashes = False)
+def get_right_gloves():
+	gloves = Glove.query.filter(Glove.is_primary).all()
+	return [i.id for i in gloves], 200
+
+@app.route("/opencals", methods = ["POST"], strict_slashes = False)
 def get_open_callibrations():
 	payload = request.get_json()
 	if not payload or 'glove_id' not in payload:
@@ -49,7 +68,7 @@ def get_open_callibrations():
 		cals = OpenCallibrationTrainingSignal.query.filter_by(glove_id = payload['glove_id']).all()
 	return [i['id'] for i in cals], 200
 
-@app.route("/closedcals", methods = ["GET"], strict_slashes = False)
+@app.route("/closedcals", methods = ["POST"], strict_slashes = False)
 def get_closed_callibrations():
 	payload = request.get_json()
 	if not payload or 'glove_id' not in payload:
@@ -61,6 +80,7 @@ def get_closed_callibrations():
 @app.route("/start", methods = ["POST"], strict_slashes = False)
 def start():
 	payload = request.get_json()
+	print(payload)
 	if not payload or 'glove_id' not in payload or 'ocid' not in payload or 'ccid' not in payload:
 		return "Bad Request", 400
 	current_glove = Glove.query.get(payload['glove_id'])
@@ -109,6 +129,7 @@ def snapshot():
 			callibration_id = callibration_id.id
 
 	return jsonify(id = callibration_id), 200
+	# return jsonify(id = 1), 200
 
 @app.route("/register", methods = ["POST"], strict_slashes = False)
 def register_glove():
@@ -120,6 +141,8 @@ def register_glove():
 		if current_glove is not None:
 			current_glove.is_primary = payload['is_primary']
 			current_glove.port = payload['port']
+
+			return jsonify(id = current_glove.id), 200
 		else:
 			db.session.add(Glove(is_primary = payload['is_primary'], port = payload['port']))
 
@@ -127,7 +150,9 @@ def register_glove():
 		db.session.add(Glove(is_primary = payload['is_primary'], port = payload['port']))
 	db.session.commit()
 
-	return "Success", 200
+	current_glove = Glove.query.order_by(Glove.id.desc()).first()
+
+	return jsonify(id = current_glove.id), 200
 
 if __name__ == "__main__":
 	app.run(debug = True)

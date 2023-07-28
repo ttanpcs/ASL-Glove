@@ -1,5 +1,5 @@
-.background
-  height: 600pt
+.background-reg
+  height: 700pt
   width: 1136pt
   display: relative
   background: #424c5a //Color 3
@@ -7,6 +7,7 @@
   .content
     display: flex
     flex-direction: column
+    height: 100%
     width: 100%
 
     .title-box
@@ -14,11 +15,11 @@
       text-align: left
       display: flex
       flex-direction: row
-      height: 80pt
+      height: 100pt
       position: relative
       width: 1136pt
       
-      font-size: 4ch
+      font-size: 5ch
       font-weight: bold
       background: #eaeaea
       color: #84b5af //Color1
@@ -73,16 +74,15 @@
           list-style-type: none
           padding: 0
           text-align: center
-          margin-top: 21pt
-          
+          margin-top: 22pt
 
-          .list-item  
-            
+          .list-item
             background: #eaeaea //offwhite
             width: 120pt
             height: 40pt
-            font-size: 1em
+            font-size: .8em
             display: flex
+            text-decoration: none
             border-color:#424c5a 
             align-items: center
             justify-content: center
@@ -90,19 +90,31 @@
 
     .left-right
       width: 1136pt
-      height: 520pt
+      height: 100%
       display: flex
-      flex-direction: column
+      flex-direction: row
+      background: url(../../assets/Background.png) no-repeat 100%/100%
+      background-size: 1136pt
 
       .half
         width: 568pt
         display: flex
         flex-direction: column
         align-items: center
+        justify-content: center
+
+        .half-form
+          width: 300pt
+          // margin-top: 130pt
+          color: #84b5af //Color1
+          font-size: 18pt
+
+          .text-input
+            height: 20pt
 
         .half-button
-          margin-top: 60pt
-          font-size: 1.5em
+          margin-top: 30pt
+          font-size: 17pt
           width: 300pt
           height: 50pt
           border-width: 0
@@ -111,7 +123,6 @@
 
         .half-list
           margin-top: 0pt
-          font-size: .5em
           position: absolute
           list-style-type: none
           padding: 0
@@ -122,7 +133,7 @@
             background: #eaeaea //offwhite
             width: 300pt
             height: 40pt
-            font-size: 3.5em
+            font-size: 23pt
             display: flex
             border-color:#84b5af 
             align-items: center

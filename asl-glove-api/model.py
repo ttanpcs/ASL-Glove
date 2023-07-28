@@ -112,7 +112,7 @@ def normalizeTableValuesWithCalibration(id, table, limit = 0):
 
     return tot_v_values, tot_im_values
 
-def getLatestPrediction(model, glove_ids , num_rows = 10, num_preds = 1):
+def getLatestPrediction(model, glove_ids , num_rows = 5, num_preds = 1):
     values = Signal.query.filter(Signal.glove_id.in_(glove_ids)).order_by(Signal.time.desc()).limit(num_rows).all() 
     if (len(values) == 0):
         return None   
@@ -182,9 +182,13 @@ if __name__ == "__main__":
 
     # print('A' in 'A' 'B' 'C')
     # trainModel()
-    # model = loadModel()
+    model = loadModel()
     # print(getLatestPrediction(model, [1], num_preds= 5))
-    trainModelWithTestSplit()
+    # trainModelWithTestSplit()
+
+    label = 'Q'
+    text = getLatestPrediction(model, [37], num_preds = 5)
+    print(label in text)
 
 
 
